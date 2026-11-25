@@ -1,0 +1,178 @@
+:host {
+  color: var(--saed-text);
+}
+
+h3,
+.modal-title,
+.form-label,
+strong {
+  color: var(--saed-header);
+}
+
+.text-muted,
+.form-text {
+  color: var(--saed-muted) !important;
+}
+
+a {
+  color: var(--saed-primary);
+
+  &:hover {
+    color: var(--saed-primary-hover);
+  }
+}
+
+.spinner-border.text-primary {
+  color: var(--saed-primary) !important;
+}
+
+.card,
+.modal-content {
+  background: var(--saed-surface);
+  border-color: var(--saed-border);
+  box-shadow: var(--saed-shadow-sm) !important;
+}
+
+.modal.fade.show.d-block {
+  background: var(--saed-overlay) !important;
+}
+
+.modal-header,
+.modal-footer {
+  border-color: var(--saed-border);
+}
+
+.btn-close {
+  opacity: 0.72;
+}
+
+:host-context(html.saed-dark) .btn-close {
+  filter: invert(1) grayscale(1);
+}
+
+.table {
+  --bs-table-bg: var(--saed-surface);
+  --bs-table-color: var(--saed-text);
+  --bs-table-border-color: var(--saed-border);
+  --bs-table-striped-bg: var(--saed-table-row-alt);
+  --bs-table-striped-color: var(--saed-text);
+  --bs-table-hover-bg: var(--saed-surface-hover);
+  --bs-table-hover-color: var(--saed-text);
+  color: var(--saed-text);
+  border-color: var(--saed-border);
+}
+
+.table > :not(caption) > * > * {
+  border-color: var(--saed-border);
+}
+
+.table-light {
+  --bs-table-bg: var(--saed-table-header);
+  --bs-table-color: var(--saed-header);
+  background: var(--saed-table-header);
+  color: var(--saed-header);
+  border-color: var(--saed-border);
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+  --bs-table-bg-type: var(--saed-table-row-alt);
+}
+
+.table tbody > tr {
+  transition: background-color var(--saed-transition);
+}
+
+.table tbody > tr:hover > * {
+  background-color: var(--saed-surface-hover);
+  color: var(--saed-text);
+}
+
+.form-control,
+.form-select {
+  background-color: var(--saed-input-bg);
+  border-color: var(--saed-input-border);
+  color: var(--saed-text);
+}
+
+.form-control::placeholder {
+  color: var(--saed-placeholder);
+}
+
+.form-select:focus,
+.form-control:focus {
+  border-color: var(--saed-active);
+  box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--saed-primary) 18%, transparent);
+}
+
+.form-select option {
+  background-color: var(--saed-input-bg);
+  color: var(--saed-text);
+}
+
+.btn-primary {
+  --bs-btn-color: var(--saed-on-primary);
+  --bs-btn-bg: var(--saed-primary);
+  --bs-btn-border-color: var(--saed-primary);
+  --bs-btn-hover-color: var(--saed-on-primary);
+  --bs-btn-hover-bg: var(--saed-primary-hover);
+  --bs-btn-hover-border-color: var(--saed-primary-hover);
+  --bs-btn-active-color: var(--saed-on-primary);
+  --bs-btn-active-bg: var(--saed-active);
+  --bs-btn-active-border-color: var(--saed-active);
+  --bs-btn-disabled-bg: var(--saed-primary);
+  --bs-btn-disabled-border-color: var(--saed-primary);
+}
+
+.btn-secondary {
+  --bs-btn-bg: var(--saed-surface-alt);
+  --bs-btn-border-color: var(--saed-border);
+  --bs-btn-color: var(--saed-text);
+  --bs-btn-hover-bg: var(--saed-surface-hover);
+  --bs-btn-hover-border-color: var(--saed-primary);
+  --bs-btn-hover-color: var(--saed-text);
+}
+
+.btn-outline-primary,
+.btn-outline-success {
+  --bs-btn-color: var(--saed-accent);
+  --bs-btn-border-color: var(--saed-accent);
+  --bs-btn-hover-color: var(--saed-on-primary);
+  --bs-btn-hover-bg: var(--saed-accent);
+  --bs-btn-hover-border-color: var(--saed-accent);
+  --bs-btn-active-color: var(--saed-on-primary);
+  --bs-btn-active-bg: var(--saed-active);
+  --bs-btn-active-border-color: var(--saed-active);
+}
+
+.badge.bg-success {
+  background-color: var(--saed-primary) !important;
+  color: var(--saed-on-primary) !important;
+}
+
+.badge.bg-secondary {
+  background-color: var(--saed-chip-bg) !important;
+  color: var(--saed-chip-text) !important;
+}
+
+.badge.bg-light,
+.badge.bg-white {
+  background-color: var(--saed-chip-bg) !important;
+  border-color: var(--saed-border) !important;
+}
+
+.badge.text-dark,
+.badge.text-secondary {
+  color: var(--saed-chip-text) !important;
+}
+
+.alert-info {
+  background-color: var(--saed-primary-soft);
+  border-color: var(--saed-border);
+  color: var(--saed-text);
+}
+
+.alert-danger {
+  background-color: var(--saed-danger-soft);
+  border-color: var(--saed-danger-border);
+  color: var(--saed-danger);
+}

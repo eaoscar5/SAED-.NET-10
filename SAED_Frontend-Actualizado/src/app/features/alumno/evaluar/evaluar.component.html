@@ -1,0 +1,160 @@
+<div class="evaluar-root">
+
+  <header class="evaluar-header">
+    <button class="btn-volver" type="button" (click)="volver()" aria-label="Volver al inicio">
+      <i class="bi bi-arrow-left"></i>
+    </button>
+
+    <div class="header-info">
+      <span class="header-maestro">Lista de docentes</span>
+    </div>
+
+    <app-theme-toggle [compact]="true"></app-theme-toggle>
+  </header>
+
+  <main class="evaluar-main">
+
+    <div class="estado-cargando" *ngIf="loading">
+      <div class="spinner-ring"></div>
+      <p>Cargando instrumento...</p>
+    </div>
+
+    <div class="estado-error" *ngIf="!loading && errorMsg && !enviado && !instrumento">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+      <p>{{ errorMsg }}</p>
+      <button class="btn-accion" type="button" (click)="volver()">Volver al inicio</button>
+    </div>
+
+    <div class="estado-exito" *ngIf="enviado">
+      <div class="exito-icon"><i class="bi bi-patch-check-fill"></i></div>
+      <h2>Evaluaci&oacute;n enviada</h2>
+      <p>Tu evaluaci&oacute;n fue registrada correctamente.</p>
+      <p class="exito-clave">Registro de evaluaci&oacute;n: <strong>#{{ evaluacionId }}</strong></p>
+      <section class="folio-finalizacion" *ngIf="finalizacion?.completada">
+        <i class="bi bi-award-fill"></i>
+        <div>
+          <strong>Evaluaciones del per&iacute;odo completadas</strong>
+          <span>Folio de finalizaci&oacute;n: <b>{{ finalizacion?.folio }}</b></span>
+        </div>
+      </section>
+      <button class="btn-accion" type="button" (click)="volver()">
+        <i class="bi bi-arrow-left me-1"></i> Volver
+      </button>
+    </div>
+
+    <ng-container *ngIf="!loading && !enviado && instrumento">
+      <section class="survey-container">
+
+        <div class="flashcard" *ngIf="tarjetaActual as tarjeta">
+          <div class="question-header">
+            <span>Mtro/a. {{ evaluacion?.nombreMaestro | titlecase }}</span>
+            <em>{{ evaluacion?.materia }}</em>
+          </div>
+
+          <span class="question-category">{{ tarjeta.categoria.nombre }}</span>
+
+          <h2 class="question-text">{{ tarjeta.pregunta.texto }}</h2>
+
+          <div class="options" *ngIf="esCerrada(tarjeta.pregunta.tipo)">
+            <div class="sin-opciones-warning" *ngIf="!tarjeta.pregunta.opciones || tarjeta.pregunta.opciones.length === 0">
+              <i class="bi bi-exclamation-triangle me-1"></i>
+              Esta pregunta no tiene opciones configuradas.
+            </div>
+
+            <button
+              class="option-btn"
+              type="button"
+              *ngFor="let op of tarjeta.pregunta.opciones; let idx = index"
+              [ngClass]="opcionClase(op, idx)"
+              [class.selected]="opcionSeleccionada(tarjeta.pregunta.id, op.id)"
+              [class.option-error]="intentoEnviar && respuestas[tarjeta.pregunta.id] === undefined"
+              [attr.aria-pressed]="opcionSeleccionada(tarjeta.pregunta.id, op.id)"
+              (click)="seleccionar(tarjeta.pregunta.id, op.id)">
+              <span class="opcion-texto">{{ op.texto }}</span>
+              <span class="opcion-icono" aria-hidden="true">{{ opcionEmoji(op, idx) }}</span>
+            </button>
+
+            <span class="pregunta-pendiente" *ngIf="intentoEnviar && respuestas[tarjeta.pregunta.id] === undefined">
+              <i class="bi bi-exclamation-circle me-1"></i>Selecciona una opci&oacute;n
+            </span>
+          </div>
+
+          <div class="open-answer" *ngIf="esAbierta(tarjeta.pregunta.tipo)">
+            <textarea
+              class="respuesta-abierta"
+              rows="6"
+              placeholder="Escribe tu respuesta..."
+              [(ngModel)]="respuestasAbiertas[tarjeta.pregunta.id]">
+            </textarea>
+          </div>
+        </div>
+
+        <div class="flashcard comentario-card" *ngIf="enComentario">
+          <div class="question-header">
+            <small>Último paso</small>
+            <span>Comentario adicional</span>
+            <em>Mtro/a. {{ evaluacion?.nombreMaestro | titlecase }}</em>
+          </div>
+
+          <p class="question-count">Comentario obligatorio</p>
+          <h2 class="question-text">Comparte una observaci&oacute;n sobre el desempe&ntilde;o del profesor.</h2>
+
+          <textarea
+            class="comentario-input"
+            [class.input-error]="intentoEnviar && !comentarioValido"
+            rows="7"
+            placeholder="Escribe un comentario sobre el desempeño del profesor..."
+            [(ngModel)]="comentario">
+          </textarea>
+
+          <span class="error-hint" *ngIf="intentoEnviar && !comentarioValido">
+            <i class="bi bi-exclamation-circle me-1"></i>El comentario es obligatorio.
+          </span>
+        </div>
+
+        <div class="alerta-error" *ngIf="errorMsg && !loading">
+          <i class="bi bi-exclamation-triangle me-2"></i>{{ errorMsg }}
+        </div>
+
+        <div class="progress-section">
+          <div class="progress-bar" aria-hidden="true">
+            <div class="progress-fill" [style.width.%]="progreso"></div>
+          </div>
+          <span class="progress-text">
+            {{ totalRespondidas }} de {{ totalPreguntas }} preguntas contestadas
+          </span>
+        </div>
+
+        <div class="navigation">
+          <button
+            class="btn-prev"
+            type="button"
+            [disabled]="!puedeRetroceder"
+            (click)="anterior()">
+            <i class="bi bi-arrow-left me-1"></i> Anterior
+          </button>
+
+          <button
+            class="btn-next"
+            type="button"
+            *ngIf="!enComentario"
+            [disabled]="!puedeAvanzar"
+            (click)="siguiente()">
+            Siguiente <i class="bi bi-arrow-right ms-1"></i>
+          </button>
+
+          <button
+            class="btn-next btn-submit"
+            type="button"
+            *ngIf="enComentario"
+            [disabled]="guardando"
+            (click)="enviar()">
+            <span *ngIf="guardando" class="spinner-sm"></span>
+            <i *ngIf="!guardando" class="bi bi-send-fill me-1"></i>
+            {{ guardando ? 'Enviando...' : 'Enviar evaluación' }}
+          </button>
+        </div>
+      </section>
+    </ng-container>
+  </main>
+</div>

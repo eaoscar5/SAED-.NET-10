@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluación Docente</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <div class="survey-container">
+
+        <div class="flashcard">
+
+            <div class="question-header">
+                <small>Evaluando a</small>
+                <span id="teacherName"></span>
+            </div>
+
+            <h2 id="questionText"></h2>
+
+            <div class="options" id="optionsContainer"></div>
+
+        </div>
+
+        <div class="progress-section">
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <span id="progressText"> 0 de 10 preguntas contestadas </span>
+
+        </div>
+
+        <div class="navigation">
+            <button id="prevBtn" disabled> ← Anterior </button>
+            <button id="nextBtn" disabled> Siguiente → </button>
+        </div>
+
+    </div>
+
+<script>
+
+const docente = {nombre: "Juan Pérez López"};
+
+const questions = [
+
+    "¿Con qué frecuencia explica claramente los temas?",
+
+    "¿Con qué frecuencia responde las dudas de los estudiantes?",
+
+    "¿Con qué frecuencia fomenta la participación en clase?",
+
+    "¿Con qué frecuencia utiliza recursos didácticos?",
+
+    "¿Con qué frecuencia demuestra dominio de la materia?",
+
+    "¿Con qué frecuencia mantiene una actitud respetuosa?",
+
+    "¿Con qué frecuencia cumple con los horarios establecidos?",
+
+    "¿Con qué frecuencia evalúa de manera justa?",
+
+    "¿Con qué frecuencia proporciona retroalimentación útil?",
+
+    "¿Con qué frecuencia recomendarías a este docente?"
+];
+
+const options = [
+
+    {
+        text:"Nunca",
+        className:"nunca",
+        emoji:"😭"
+    },
+
+    {
+        text:"Casi nunca",
+        className:"casi-nunca",
+        emoji:"😞"
+    },
+
+    {
+        text:"A veces",
+        className:"a-veces",
+        emoji:"😐"
+    },
+
+    {
+        text:"Casi siempre",
+        className:"casi-siempre",
+        emoji:"😄"
+    },
+
+    {
+        text:"Siempre",
+        className:"siempre",
+        emoji:"😁"
+    }
+
+];
+
+let currentQuestion = 0;
+
+const answers = new Array(questions.length).fill(null);
+
+const teacherName = document.getElementById("teacherName");
+
+const questionText = document.getElementById("questionText");
+
+const optionsContainer = document.getElementById("optionsContainer");
+
+const progressFill = document.getElementById("progressFill");
+
+const progressText = document.getElementById("progressText");
+
+const prevBtn = document.getElementById("prevBtn");
+
+const nextBtn = document.getElementById("nextBtn");
+
+function renderQuestion(){
+    teacherName.textContent = `Mtro/a. ${docente.nombre}`;
+
+    questionText.textContent = questions[currentQuestion];
+
+    optionsContainer.innerHTML = "";
+
+    options.forEach(option => {
+        const button =
+            document.createElement("button");
+
+        button.className =
+            `option-btn ${option.className}`;
+
+        button.innerHTML =
+        `<span>${option.text}</span>
+         <span class="emoji">${option.emoji}</span>`;
+
+        if(answers[currentQuestion] === option.text){
+            button.classList.add("selected");
+        }
+
+        button.addEventListener("click", () => {
+            answers[currentQuestion] = option.text;
+
+            renderQuestion();
+        });
+
+        optionsContainer.appendChild(button);
+    });
+
+    prevBtn.disabled = currentQuestion === 0;
+
+    nextBtn.disabled = answers[currentQuestion] === null;
+
+    updateProgress();
+}
+
+function updateProgress(){
+
+    const answered = answers.filter(answer => answer !== null).length;
+
+    const percentage = (answered / questions.length) * 100;
+
+    progressFill.style.width = percentage + "%";
+
+    progressText.textContent = `${answered} de ${questions.length} preguntas contestadas`;
+}
+
+prevBtn.addEventListener("click", () => {
+    if(currentQuestion > 0){
+        currentQuestion--;
+        renderQuestion();
+    }
+});
+
+nextBtn.addEventListener("click", () => {
+    if(currentQuestion < questions.length - 1){
+        currentQuestion++;
+        renderQuestion();
+    }else{
+        console.log("Respuestas:", answers);
+        alert("Encuesta finalizada.");
+    }
+});
+
+renderQuestion();
+
+</script>
+</body>
+</html>

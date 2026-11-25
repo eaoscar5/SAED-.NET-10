@@ -1,0 +1,58 @@
+<div class="login-page">
+    <div class="login-overlay" aria-hidden="true"></div>
+
+    <main class="auth-wrapper" aria-labelledby="login-title">
+        <section class="auth-box">
+            <div class="auth-brand">
+                <img src="assets/images/logos/uts-logo-color.png" alt="Universidad Tecnológica del Sur de Sonora">
+            </div>
+
+            <h1 id="login-title">Iniciar sesión</h1>
+
+            <div *ngIf="errorMsg" class="alert alert-danger d-flex align-items-center" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <span>{{ errorMsg }}</span>
+            </div>
+
+            <form [formGroup]="form" (ngSubmit)="submit()" class="login-form" novalidate>
+                <div class="field-group">
+                    <label for="credencial">Usuario</label>
+                    <input
+                        id="credencial"
+                        class="form-control"
+                        [class.is-invalid]="credencialInvalid"
+                        type="text"
+                        formControlName="credencial"
+                        placeholder="Matrícula, empleado o correo"
+                        autocomplete="username">
+                    <div *ngIf="credencialInvalid" class="invalid-feedback d-block">
+                        Ingresa tu matrícula, número de empleado o correo.
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <label for="password">Contraseña</label>
+                    <input
+                        id="password"
+                        class="form-control"
+                        [class.is-invalid]="passwordInvalid"
+                        type="password"
+                        formControlName="password"
+                        placeholder="Contraseña"
+                        autocomplete="current-password">
+                    <div *ngIf="passwordInvalid" class="invalid-feedback d-block">
+                        Ingresa tu contraseña.
+                    </div>
+                </div>
+
+                <button [disabled]="loading" type="submit" class="btn btn-info btn-lg w-100">
+                    <span *ngIf="!loading">Continuar</span>
+                    <span *ngIf="loading">
+                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        Por favor, espere...
+                    </span>
+                </button>
+            </form>
+        </section>
+    </main>
+</div>

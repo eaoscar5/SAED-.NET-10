@@ -1,0 +1,27 @@
+.max-width {
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.logo-image {
+  width: min(176px, 100%);
+  max-width: 100%;
+  height: auto;
+  max-height: 54px;
+  margin-top: 5px;
+  padding: 0;
+  object-fit: contain;
+
+}
+
+@media (max-width: 991px) {
+  .logo-image {
+    width: min(168px, 100%);
+    max-width: 100%;
+    height: auto;
+    max-height: 50px;
+    margin-top: 5px;
+    padding: 0;
+  }
+  
+}

@@ -1,0 +1,223 @@
+<main class="avance-root">
+  <header class="page-header">
+    <h3>Avance de evaluación por grupo</h3>
+    <p>Consulta alumnos evaluados, pendientes y el avance completo de cada grupo.</p>
+  </header>
+
+  <section class="filtros-panel">
+    <div class="filtros-grid">
+      <div>
+        <label for="periodo">Período</label>
+        <select
+          id="periodo"
+          class="form-select"
+          [(ngModel)]="procesoSeleccionado"
+          (ngModelChange)="alCambiarProceso()">
+          <option [ngValue]="null">Período más reciente</option>
+          <option *ngFor="let p of procesos" [ngValue]="p.id">
+            {{ p.nombre }} · {{ periodoLabel(p.periodo) }} {{ p.anio }}
+            <ng-container *ngIf="p.activo"> (Activo)</ng-container>
+          </option>
+        </select>
+      </div>
+
+      <div>
+        <label for="academia">Academia</label>
+        <select
+          id="academia"
+          class="form-select"
+          [(ngModel)]="academiaSeleccionada"
+          (ngModelChange)="alCambiarAcademia()"
+          [disabled]="loadingCatalogos">
+          <option value="">Todas</option>
+          <option *ngFor="let a of academias" [value]="a.clave">{{ a.nombre }}</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="carrera">Carrera</label>
+        <select
+          id="carrera"
+          class="form-select"
+          [(ngModel)]="carreraSeleccionada"
+          (ngModelChange)="alCambiarCarrera()"
+          [disabled]="loadingCatalogos || carrerasDisponibles.length === 0">
+          <option value="">Todas</option>
+          <option *ngFor="let c of carrerasDisponibles" [value]="c.clave">{{ c.nombre }}</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="grupo">Grupo</label>
+        <select
+          id="grupo"
+          class="form-select"
+          [(ngModel)]="grupoSeleccionado"
+          [disabled]="loadingCatalogos || gruposDisponibles.length === 0">
+          <option value="">Todos</option>
+          <option *ngFor="let g of gruposDisponibles" [value]="g.clave">{{ g.nombre }}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="filtros-actions">
+      <span *ngIf="loadingCatalogos" class="catalogos-status">
+        <span class="spinner-border spinner-border-sm"></span>
+        Cargando catálogos
+      </span>
+      <button class="btn btn-outline-secondary btn-sm" (click)="limpiar()" [disabled]="buscando">
+        Limpiar
+      </button>
+      <button class="btn btn-primary btn-sm" (click)="buscar()" [disabled]="buscando || loadingCatalogos">
+        <span *ngIf="buscando" class="spinner-border spinner-border-sm me-1"></span>
+        <i *ngIf="!buscando" class="bi bi-search me-1"></i>
+        Buscar
+      </button>
+    </div>
+  </section>
+
+  <div class="alert alert-danger" *ngIf="errorMsg">{{ errorMsg }}</div>
+
+  <div class="estado-cargando" *ngIf="buscando">
+    <div class="spinner-ring"></div>
+    <p>Consultando avance por grupo...</p>
+  </div>
+
+  <div class="alert alert-info" *ngIf="!buscando && !buscado">
+    Selecciona los filtros necesarios y presiona <strong>Buscar</strong>.
+  </div>
+
+  <div class="alert alert-info" *ngIf="!buscando && buscado && resultados.length === 0 && !errorMsg">
+    No se encontraron grupos con los filtros seleccionados.
+  </div>
+
+  <section class="resultados-panel" *ngIf="!buscando && resultados.length > 0">
+    <div class="tabla-toolbar">
+      <span>{{ resultados.length }} grupo(s)</span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-sm align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Grupo</th>
+            <th>Academia</th>
+            <th>Carrera</th>
+            <th class="text-end">Alumnos</th>
+            <th class="text-end">Evaluaron</th>
+            <th class="text-end">Faltan</th>
+            <th>Avance</th>
+            <th class="text-center">Detalle</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let g of resultados">
+            <td>
+              <strong>{{ g.grupo }}</strong>
+              <span class="dato-secundario">{{ g.nombreGrupo }}</span>
+            </td>
+            <td>{{ g.academiaNombre || '-' }}</td>
+            <td>
+              {{ g.carreraClave || '-' }}
+              <span class="dato-secundario">{{ g.carreraNombre }}</span>
+            </td>
+            <td class="text-end">{{ g.totalAlumnos }}</td>
+            <td class="text-end dato-correcto">{{ g.alumnosEvaluaron }}</td>
+            <td class="text-end">{{ g.alumnosFaltantes }}</td>
+            <td>
+              <div class="avance-barra">
+                <div class="avance-barra-fill" [style.width.%]="g.porcentajeEvaluacion"></div>
+              </div>
+              <span class="dato-secundario">{{ g.porcentajeEvaluacion.toFixed(2) }} %</span>
+            </td>
+            <td class="text-center">
+              <button class="btn btn-sm btn-outline-primary" (click)="verDetalle(g)">
+                <i class="bi bi-list-check me-1"></i>
+                Ver
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="estado-cargando" *ngIf="cargandoDetalle">
+    <div class="spinner-ring"></div>
+    <p>Cargando detalle del grupo...</p>
+  </div>
+
+  <section class="detalle-progreso" *ngIf="detalle && !cargandoDetalle">
+    <div class="detalle-progreso-header">
+      <div class="detalle-progreso-identidad">
+        <img
+          class="detalle-progreso-logo-uts"
+          src="assets/images/logos/uts-logo-color.png"
+          alt="Universidad Tecnológica del Sur de Sonora">
+        <div>
+          <h4>Grupo {{ detalle.grupo }}</h4>
+          <span>{{ detalle.nombreProceso }} · {{ periodoLabel(detalle.periodo) }} {{ detalle.anio }}</span>
+          <small>{{ detalle.academiaNombre }} · {{ detalle.carreraNombre }}</small>
+        </div>
+      </div>
+      <div class="detalle-progreso-actions">
+        <button class="btn btn-outline-success btn-sm" (click)="exportarPdf()" [disabled]="generandoPdf">
+          <span *ngIf="generandoPdf" class="spinner-border spinner-border-sm me-1"></span>
+          <i *ngIf="!generandoPdf" class="bi bi-file-earmark-pdf me-1"></i>
+          PDF grupo
+        </button>
+        <button class="btn btn-outline-secondary btn-sm" (click)="cerrarDetalle()" title="Cerrar detalle">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="detalle-progreso-stats">
+      <div><strong>{{ detalle.totalAlumnos }}</strong><span>Alumnos</span></div>
+      <div><strong>{{ detalle.alumnosEvaluaron }}</strong><span>Evaluaron completo</span></div>
+      <div><strong>{{ detalle.alumnosFaltantes }}</strong><span>Faltan</span></div>
+      <div><strong>{{ detalle.materiasAsignadas }}</strong><span>Materias/docentes</span></div>
+    </div>
+
+    <div class="materias-progreso">
+      <span *ngFor="let m of detalle.materias">
+        {{ m.nombreMateria }} · {{ m.nombreMaestro | titlecase }}
+        <em>{{ tipoLabel(m.tipoInstrumento) }}</em>
+      </span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-sm align-middle mb-0">
+        <thead>
+          <tr>
+            <th class="text-center">Estado</th>
+            <th>Matrícula</th>
+            <th>Alumno</th>
+            <th class="text-end">Avance</th>
+            <th class="text-end">Faltan</th>
+            <th>Última evaluación</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let a of detalle.alumnos" [class.alumno-evaluado]="a.evaluado">
+            <td class="text-center estado-col">
+              <i
+                *ngIf="a.evaluado"
+                class="bi bi-check-circle-fill estado-check"
+                title="Evaluación completa"
+                aria-label="Evaluación completa"></i>
+            </td>
+            <td>{{ a.matricula }}</td>
+            <td>
+              <strong>{{ a.nombreAlumno | titlecase }}</strong>
+              <span class="dato-secundario">{{ estadoAlumnoLabel(a) }}</span>
+            </td>
+            <td class="text-end">{{ a.evaluacionesRealizadas }}/{{ a.evaluacionesEsperadas }}</td>
+            <td class="text-end">{{ a.evaluacionesFaltantes }}</td>
+            <td>{{ fechaCorta(a.ultimaEvaluacion) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
